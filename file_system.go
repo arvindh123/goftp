@@ -191,6 +191,56 @@ func (c *Client) Stat(path string) (os.FileInfo, error) {
 	return parseMLST(strings.TrimLeft(lines[1], " "), false)
 }
 
+func (c *Client) StatPlainLine(path string) ([]string, error) {
+	lines, err := c.controlStringList("MLST %s", path)
+	dummy := []string{" "}
+	if err != nil {
+		fmt.Println("failed for MLST")
+		if commandNotSupporterdError(err) {
+			lines, err = c.dataStringList("LIST %s", path)
+			if err != nil {
+				return dummy, err
+			}
+			return lines, nil
+		}
+	}
+	return lines, nil
+
+}
+
+func (c *Client) StatList(path string) ([]string, error) {
+	lines, err := c.dataStringList("LIST %s", path)
+	dummy := []string{" "}
+	if err != nil {
+		return dummy, err
+	}
+	return lines, nil
+
+}
+
+func (c *Client) GetSizes(path string) ([]string, error) {
+	lines, err := c.dataStringList("LIST %s", path)
+	dummy := []string{" "}
+	var retSizes []string
+	if err != nil {
+		return dummy, err
+	}
+	for _, val := range lines {
+		retSizes = append(retSizes, (strings.Fields(val)[2]))
+	}
+	return retSizes, nil
+
+}
+
+func (c *Client) ConnStatus() ([]string, error) {
+	lines, err := c.controlStringList("NOOP")
+	dummy := []string{" "}
+	if err != nil {
+		return dummy, err
+	}
+	return lines, nil
+}
+
 func extractDirName(msg string) (string, error) {
 	openQuote := strings.Index(msg, "\"")
 	closeQuote := strings.LastIndex(msg, "\"")
