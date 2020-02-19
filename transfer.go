@@ -61,7 +61,7 @@ func (c *Client) Retrieve(path string, dest io.Writer) error {
 // will also verify the remote file's size after the transfer if the server
 // supports the SIZE command.
 func (c *Client) Store(path string, src io.Reader) error {
-
+	// fmt.Println(c.hosts)
 	canResume := len(c.hosts) == 1 && c.canResume()
 
 	seeker, ok := src.(io.Seeker)
